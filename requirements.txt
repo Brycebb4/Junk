@@ -1,0 +1,20 @@
+# CincyJunkBot Requirements
+
+# Flask and extensions
+Flask==3.0.0
+Flask-SocketIO==5.3.6
+
+# Web scraping
+beautifulsoup4==4.12.2
+lxml==5.1.0
+requests==2.31.0
+
+# Notifications
+twilio==8.11.0
+telegram-send==0.41
+
+# Data processing
+python-dateutil==2.8.2
+
+# Production server
+gunicorn==21.2.0
