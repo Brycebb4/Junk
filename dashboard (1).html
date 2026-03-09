@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Command Center | Tri-State Junk Removal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .heading-font { font-family: 'Oswald', sans-serif; }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .lead-row {
+            transition: all 0.2s ease;
+        }
+
+        .lead-row:hover {
+            background: #f8fafc;
+        }
+
+        .target-lead {
+            border-left: 4px solid #22c55e;
+        }
+
+        .high-value-lead {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .low-value-lead {
+            border-left: 4px solid #ef4444;
+            opacity: 0.7;
+        }
+
+        .pulse-dot {
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .filter-btn.active {
+            background: #22c55e;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white flex-shrink-0 hidden md:flex flex-col">
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-robot text-green-500 text-2xl"></i>
+                    <span class="text-xl font-bold heading-font">LEAD BOT</span>
+                </div>
+                <p class="text-slate-400 text-sm mt-2">Tri-State Junk Removal</p>
+            </div>
+
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 bg-green-600/20 text-green-400 rounded-lg">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Lead</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                            <i class="fas fa-phone"></i>
+                            <span>Follow-ups</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Won Jobs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Website</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-slate-200 p-4 md:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold heading-font text-slate-800">Lead Command Center</h1>
+                        <p class="text-slate-500">Manage your junk removal leads from Cincinnati, Dayton & KY</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden md:flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full">
+                            <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                            <span class="text-green-700 font-semibold text-sm">Bot Active</span>
+                        </div>
+                        <button onclick="showAddLeadModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-plus mr-2"></i>Add Lead
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Section -->
+            <div class="p-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div class="stat-card p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-slate-500 text-sm">Total Leads</span>
+                            <i class="fas fa-users text-green-500"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-800 heading-font" id="totalLeads">0</div>
+                    </div>
+
+                    <div class="stat-card p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-slate-500 text-sm">Target ($175-$300)</span>
+                            <i class="fas fa-bullseye text-amber-500"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-800 heading-font" id="targetLeads">0</div>
+                    </div>
+
+                    <div class="stat-card p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-slate-500 text-sm">High Value ($300+)</span>
+                            <i class="fas fa-star text-blue-500"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-800 heading-font" id="highValueLeads">0</div>
+                    </div>
+
+                    <div class="stat-card p-6 rounded-xl shadow-sm border-l-4 border-red-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-slate-500 text-sm">Too Low (<$175)</span>
+                            <i class="fas fa-thumbs-down text-red-500"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-slate-800 heading-font" id="lowValueLeads">0</div>
+                    </div>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="filterLeads('all')" class="filter-btn active px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        All Leads
+                    </button>
+                    <button onclick="filterLeads('callback')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        <i class="fas fa-phone mr-1"></i> Callback Requests
+                    </button>
+                    <button onclick="filterLeads('quote')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        <i class="fas fa-file-invoice mr-1"></i> Quote Requests
+                    </button>
+                    <button onclick="filterLeads('target')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        Target ($175-$300)
+                    </button>
+                    <button onclick="filterLeads('high')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        High Value ($300+)
+                    </button>
+                    <button onclick="filterLeads('low')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        Too Low (<$175)
+                    </button>
+                    <button onclick="filterLeads('contacted')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        Contacted
+                    </button>
+                    <button onclick="filterLeads('pending')" class="filter-btn px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200 transition">
+                        Not Contacted
+                    </button>
+                </div>
+
+                <!-- Leads Table -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Source</th>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Customer</th>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Location</th>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Items</th>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Est. Price</th>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Status</th>
+                                    <th class="text-left p-4 font-semibold text-slate-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadsTableBody">
+                                <!-- Leads will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="hidden p-12 text-center">
+                        <i class="fas fa-inbox text-6xl text-slate-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-slate-600 mb-2">No leads found</h3>
+                        <p class="text-slate-500">Add your first lead to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div id="addLeadModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold heading-font">Add New Lead</h2>
+                <button onclick="hideAddLeadModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="addLeadForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Lead Source *</label>
+                        <select id="leadSource" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none">
+                            <option value="">Select Source</option>
+                            <option value="Craigslist">Craigslist</option>
+                            <option value="Facebook Marketplace">Facebook Marketplace</option>
+                            <option value="Nextdoor">Nextdoor</option>
+                            <option value="Angie's List">Angie's List</option>
+                            <option value="Thumbtack">Thumbtack</option>
+                            <option value="Google">Google Search</option>
+                            <option value="Referral">Referral</option>
+                            <option value="Repeat Customer">Repeat Customer</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Est. Price ($) *</label>
+                        <input type="number" id="leadPrice" required min="0" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none" placeholder="175">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Customer Name *</label>
+                        <input type="text" id="leadName" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none" placeholder="John Smith">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Phone *</label>
+                        <input type="tel" id="leadPhone" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none" placeholder="(555) 555-5555">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Location *</label>
+                    <input type="text" id="leadLocation" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none" placeholder="Cincinnati, OH 45202">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Items to Remove *</label>
+                    <textarea id="leadItems" required rows="3" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none" placeholder="Describe the items..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Notes</label>
+                    <textarea id="leadNotes" rows="2" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-green-500 outline-none" placeholder="Additional notes..."></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="hideAddLeadModal()" class="flex-1 px-6 py-3 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+                        Add Lead
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Lead storage
+        let leads = JSON.parse(localStorage.getItem('tristateLeads') || '[]');
+        let currentFilter = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add demo data if empty
+            if (leads.length === 0) {
+                leads = [
+                    {
+                        id: 1,
+                        source: 'Craigslist',
+                        name: 'Sarah Johnson',
+                        phone: '(513) 555-1234',
+                        location: 'Cincinnati, OH 45208',
+                        items: 'Old couch, recliner, and TV stand',
+                        price: 225,
+                        status: 'target',
+                        notes: '',
+                        createdAt: new Date().toISOString(),
+                        contacted: false
+                    },
+                    {
+                        id: 2,
+                        source: 'Facebook Marketplace',
+                        name: 'Mike Thompson',
+                        phone: '(937) 555-5678',
+                        location: 'Dayton, OH 45402',
+                        items: 'Full garage cleanout - tools, boxes, old furniture',
+                        price: 450,
+                        status: 'high',
+                        notes: 'Interested in this week',
+                        createdAt: new Date().toISOString(),
+                        contacted: true
+                    },
+                    {
+                        id: 3,
+                        source: 'Nextdoor',
+                        name: 'Linda Davis',
+                        phone: '(859) 555-9012',
+                        location: 'Covington, KY 41011',
+                        items: 'Bag of clothes and small bookshelf',
+                        price: 125,
+                        status: 'low',
+                        notes: 'Too small, maybe refer to competitor',
+                        createdAt: new Date().toISOString(),
+                        contacted: false
+                    },
+                    {
+                        id: 4,
+                        source: 'Referral',
+                        name: 'James Wilson',
+                        phone: '(513) 555-3456',
+                        location: 'Mason, OH 45040',
+                        items: 'Estate cleanout - entire basement',
+                        price: 850,
+                        status: 'high',
+                        notes: 'Need to schedule ASAP',
+                        createdAt: new Date().toISOString(),
+                        contacted: true
+                    },
+                    {
+                        id: 5,
+                        source: 'Thumbtack',
+                        name: 'Emily Brown',
+                        phone: '(937) 555-7890',
+                        location: 'Kettering, OH 45429',
+                        items: 'Mattress, box spring, and bed frame',
+                        price: 195,
+                        status: 'target',
+                        notes: 'Can do this Friday',
+                        createdAt: new Date().toISOString(),
+                        contacted: false
+                    }
+                ];
+                saveLeads();
+            }
+
+            renderLeads();
+            updateStats();
+        });
+
+        // Save leads to localStorage
+        function saveLeads() {
+            localStorage.setItem('tristateLeads', JSON.stringify(leads));
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalLeads').textContent = leads.length;
+
+            const target = leads.filter(l => l.price >= 175 && l.price <= 300).length;
+            const high = leads.filter(l => l.price > 300).length;
+            const low = leads.filter(l => l.price < 175).length;
+
+            document.getElementById('targetLeads').textContent = target;
+            document.getElementById('highValueLeads').textContent = high;
+            document.getElementById('lowValueLeads').textContent = low;
+        }
+
+        // Render leads table
+        function renderLeads() {
+            const tbody = document.getElementById('leadsTableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            let filteredLeads = leads;
+
+            // Apply filter
+            if (currentFilter === 'target') {
+                filteredLeads = leads.filter(l => l.price >= 175 && l.price <= 300);
+            } else if (currentFilter === 'high') {
+                filteredLeads = leads.filter(l => l.price > 300);
+            } else if (currentFilter === 'low') {
+                filteredLeads = leads.filter(l => l.price < 175);
+            } else if (currentFilter === 'contacted') {
+                filteredLeads = leads.filter(l => l.contacted);
+            } else if (currentFilter === 'pending') {
+                filteredLeads = leads.filter(l => !l.contacted);
+            } else if (currentFilter === 'callback') {
+                filteredLeads = leads.filter(l => l.type === 'callback_request');
+            } else if (currentFilter === 'quote') {
+                filteredLeads = leads.filter(l => l.type === 'quote_request');
+            }
+
+            if (filteredLeads.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            tbody.innerHTML = filteredLeads.map(lead => {
+                let statusClass = '';
+                let statusText = '';
+                let statusBadge = '';
+                let displayPrice = '';
+                let displayItems = '';
+                let displayLocation = '';
+                let actionButtons = '';
+
+                // Handle callback requests differently
+                if (lead.type === 'callback_request') {
+                    statusClass = 'border-l-4 border-blue-500';
+                    statusText = 'Callback';
+                    statusBadge = 'bg-blue-100 text-blue-700';
+                    displayPrice = `<span class="font-bold text-lg text-blue-600">CALL BACK</span>`;
+                    displayItems = lead.preferredTime ? `Prefers to be called: ${lead.preferredTime}` : 'Callback requested';
+                    displayLocation = lead.email || 'No email provided';
+                } else if (lead.price >= 175 && lead.price <= 300) {
+                    statusClass = 'target-lead';
+                    statusText = 'Target';
+                    statusBadge = 'bg-green-100 text-green-700';
+                    displayPrice = `<span class="font-bold text-lg text-green-600">$${lead.price}</span>`;
+                } else if (lead.price > 300) {
+                    statusClass = 'high-value-lead';
+                    statusText = 'High Value';
+                    statusBadge = 'bg-amber-100 text-amber-700';
+                    displayPrice = `<span class="font-bold text-lg text-amber-600">$${lead.price}</span>`;
+                } else {
+                    statusClass = 'low-value-lead';
+                    statusText = 'Too Low';
+                    statusBadge = 'bg-red-100 text-red-700';
+                    displayPrice = `<span class="font-bold text-lg text-red-500">$${lead.price || 0}</span>`;
+                }
+
+                // Action buttons
+                if (lead.type === 'callback_request') {
+                    actionButtons = `
+                        <a href="tel:${lead.phone}" class="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition" title="Call Now">
+                            <i class="fas fa-phone"></i>
+                        </a>
+                        <a href="mailto:${lead.email || 'info@tristatehaul.com'}?subject=Callback Request - Tri-State Junk Removal" class="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition" title="Send Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <button onclick="toggleContacted(${lead.id})" class="p-2 rounded-lg ${lead.contacted ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'} hover:bg-blue-200 transition" title="Toggle Contacted">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button onclick="deleteLead(${lead.id})" class="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition" title="Delete Lead">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                } else {
+                    actionButtons = `
+                        <a href="tel:${lead.phone}" class="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition" title="Call Now">
+                            <i class="fas fa-phone"></i>
+                        </a>
+                        <a href="mailto:${lead.email || 'info@tristatehaul.com'}?subject=Quote Request - Tri-State Junk Removal" class="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition" title="Send Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <button onclick="toggleContacted(${lead.id})" class="p-2 rounded-lg ${lead.contacted ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'} hover:bg-blue-200 transition" title="Toggle Contacted">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button onclick="deleteLead(${lead.id})" class="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition" title="Delete Lead">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                }
+
+                return `
+                    <tr class="lead-row border-b border-slate-100 ${statusClass}">
+                        <td class="p-4">
+                            <span class="font-semibold text-slate-700">${lead.type === 'callback_request' ? '<i class="fas fa-phone text-blue-500 mr-1"></i> Callback' : (lead.source || 'Website')}</span>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-semibold text-slate-800">${lead.name}</div>
+                            <div class="text-sm text-slate-500">${lead.phone}</div>
+                            ${lead.email ? `<div class="text-xs text-slate-400">${lead.email}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-600">${displayLocation}</td>
+                        <td class="p-4 text-slate-600">${lead.items || displayItems}</td>
+                        <td class="p-4">${displayPrice}</td>
+                        <td class="p-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusBadge}">${statusText}</span>
+                            ${lead.contacted ? '<span class="ml-1 text-xs text-blue-500">(Contacted)</span>' : '<span class="ml-1 text-xs text-slate-400">(Pending)</span>'}
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-1">
+                                ${actionButtons}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Filter leads
+        function filterLeads(filter) {
+            currentFilter = filter;
+
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(filter) ||
+                    (filter === 'all' && btn.textContent.includes('All')) ||
+                    (filter === 'target' && btn.textContent.includes('Target')) ||
+                    (filter === 'high' && btn.textContent.includes('High')) ||
+                    (filter === 'low' && btn.textContent.includes('Too')) ||
+                    (filter === 'contacted' && btn.textContent.includes('Contacted')) ||
+                    (filter === 'pending' && btn.textContent.includes('Not'))) {
+                    btn.classList.add('active');
+                }
+            });
+
+            renderLeads();
+        }
+
+        // Add lead form submission
+        document.getElementById('addLeadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const price = parseInt(document.getElementById('leadPrice').value);
+            let status = 'low';
+            if (price >= 175 && price <= 300) status = 'target';
+            else if (price > 300) status = 'high';
+
+            const newLead = {
+                id: Date.now(),
+                source: document.getElementById('leadSource').value,
+                name: document.getElementById('leadName').value,
+                phone: document.getElementById('leadPhone').value,
+                location: document.getElementById('leadLocation').value,
+                items: document.getElementById('leadItems').value,
+                price: price,
+                status: status,
+                notes: document.getElementById('leadNotes').value,
+                createdAt: new Date().toISOString(),
+                contacted: false
+            };
+
+            leads.unshift(newLead);
+            saveLeads();
+            renderLeads();
+            hideAddLeadModal();
+            this.reset();
+        });
+
+        // Toggle contacted status
+        function toggleContacted(id) {
+            const lead = leads.find(l => l.id === id);
+            if (lead) {
+                lead.contacted = !lead.contacted;
+                saveLeads();
+                renderLeads();
+            }
+        }
+
+        // Delete lead
+        function deleteLead(id) {
+            if (confirm('Are you sure you want to delete this lead?')) {
+                leads = leads.filter(l => l.id !== id);
+                saveLeads();
+                renderLeads();
+            }
+        }
+
+        // Modal functions
+        function showAddLeadModal() {
+            document.getElementById('addLeadModal').classList.remove('hidden');
+        }
+
+        function hideAddLeadModal() {
+            document.getElementById('addLeadModal').classList.add('hidden');
+        }
+
+        // Close modal on outside click
+        document.getElementById('addLeadModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAddLeadModal();
+            }
+        });
+    </script>
+</body>
+</html>

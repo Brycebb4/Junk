@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Scanner | Tri-State Junk Removal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .heading-font { font-family: 'Oswald', sans-serif; }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .scanning-animation {
+            animation: scan-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes scan-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+        }
+
+        .target-price {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .scanned-item {
+            transition: all 0.3s ease;
+        }
+
+        .scanned-item:hover {
+            transform: translateX(5px);
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white flex-shrink-0 hidden md:flex flex-col">
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-robot text-green-500 text-2xl"></i>
+                    <span class="text-xl font-bold heading-font">LEAD BOT</span>
+                </div>
+                <p class="text-slate-400 text-sm mt-2">Auto Lead Scanner</p>
+            </div>
+
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" onclick="showSection('scanner')" class="flex items-center gap-3 px-4 py-3 bg-green-600/20 text-green-400 rounded-lg">
+                            <i class="fas fa-radar"></i>
+                            <span>Lead Scanner</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                            <i class="fas fa-list"></i>
+                            <span>Lead Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>View Website</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="p-4 border-t border-slate-700">
+                <div class="text-xs text-slate-500">
+                    <p><i class="fas fa-info-circle mr-1"></i> Auto-scan runs every 15 minutes when enabled.</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-slate-800 shadow-lg border-b border-slate-700 p-4 md:p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold heading-font">
+                            <i class="fas fa-radar text-green-500 mr-2"></i>Auto Lead Scanner
+                        </h1>
+                        <p class="text-slate-400">Searching Cincinnati, Dayton & Northern Kentucky</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div id="scannerStatus" class="flex items-center gap-2 bg-slate-700 px-4 py-2 rounded-full">
+                            <span class="w-3 h-3 bg-red-500 rounded-full" id="statusDot"></span>
+                            <span class="text-sm font-semibold" id="statusText">Scanner Off</span>
+                        </div>
+                        <button id="toggleScanner" onclick="toggleScanner()" class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2">
+                            <i class="fas fa-play"></i> Start Scanner
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scanner Controls -->
+            <div class="p-6">
+                <!-- Search Settings -->
+                <div class="bg-slate-800 rounded-xl p-6 mb-6 border border-slate-700">
+                    <h2 class="text-xl font-bold heading-font mb-4"><i class="fas fa-cog text-green-500 mr-2"></i>Scanner Settings</h2>
+
+                    <div class="grid md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Search Area</label>
+                            <select id="searchArea" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white">
+                                <option value="cincinnati">Cincinnati, OH</option>
+                                <option value="dayton">Dayton, OH</option>
+                                <option value="covington">Covington, KY</option>
+                                <option value="all">All Areas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Min Price ($)</label>
+                            <input type="number" id="minPrice" value="175" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Max Price ($)</label>
+                            <input type="number" id="maxPrice" value="1000" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Auto-Scan Interval</label>
+                            <select id="scanInterval" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white">
+                                <option value="1">Every 1 minute</option>
+                                <option value="5">Every 5 minutes</option>
+                                <option value="15" selected>Every 15 minutes</option>
+                                <option value="30">Every 30 minutes</option>
+                                <option value="60">Every 1 hour</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <label class="flex items-center gap-2 bg-slate-700 px-4 py-2 rounded-lg">
+                            <input type="checkbox" id="searchCraigslist" checked class="w-4 h-4 text-green-500">
+                            <span><i class="fab fa-craigslist text-blue-400 mr-1"></i>Craigslist</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-700 px-4 py-2 rounded-lg">
+                            <input type="checkbox" id="searchMarketplace" checked class="w-4 h-4 text-green-500">
+                            <span><i class="fab fa-facebook text-blue-500 mr-1"></i>Facebook Marketplace</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-700 px-4 py-2 rounded-lg">
+                            <input type="checkbox" id="searchNextdoor" checked class="w-4 h-4 text-green-500">
+                            <span><i class="fas fa-door-open text-green-500 mr-1"></i>Nextdoor</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-slate-700 px-4 py-2 rounded-lg">
+                            <input type="checkbox" id="searchLetgo" class="w-4 h-4 text-green-500">
+                            <span><i class="fas fa-tag text-yellow-500 mr-1"></i>Letgo</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Scanner Progress -->
+                <div id="scanProgress" class="bg-slate-800 rounded-xl p-6 mb-6 border border-slate-700 hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold"><i class="fas fa-search mr-2"></i>Scanning for leads...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div id="progressBar" class="progress-bar bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-slate-400 mt-2" id="scanStatus">Initializing scanner...</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                        <div class="text-2xl font-bold text-green-500 heading-font" id="totalFound">0</div>
+                        <div class="text-sm text-slate-400">Leads Found</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                        <div class="text-2xl font-bold text-green-400 heading-font" id="targetCount">0</div>
+                        <div class="text-sm text-slate-400">In Target Range ($175-$300)</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                        <div class="text-2xl font-bold text-amber-400 heading-font" id="highValueCount">0</div>
+                        <div class="text-sm text-slate-400">High Value ($300+)</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                        <div class="text-2xl font-bold text-blue-400 heading-font" id="lastScan">--</div>
+                        <div class="text-sm text-slate-400">Last Scan</div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                    <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+                        <h2 class="text-xl font-bold heading-font"><i class="fas fa-list mr-2"></i>Scanned Leads</h2>
+                        <div class="flex gap-2">
+                            <button onclick="clearResults()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm transition">
+                                <i class="fas fa-trash mr-1"></i> Clear
+                            </button>
+                            <button onclick="exportLeads()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">
+                                <i class="fas fa-download mr-1"></i> Export to Dashboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="resultsContainer" class="p-4 space-y-3 max-h-[500px] overflow-y-auto">
+                        <!-- Sample results will be shown here -->
+                        <div class="text-center py-12 text-slate-500">
+                            <i class="fas fa-radar text-6xl mb-4 opacity-50"></i>
+                            <p class="text-lg">Click "Start Scanner" to begin searching for leads</p>
+                            <p class="text-sm mt-2">The bot will search Craigslist, Facebook Marketplace, and other platforms</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div id="addLeadModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-slate-700">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold heading-font">Add Lead to Dashboard</h2>
+                <button onclick="closeAddLeadModal()" class="text-slate-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="addLeadForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">Lead Source *</label>
+                        <input type="text" id="leadSource" required class="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">Price ($) *</label>
+                        <input type="number" id="leadPrice" required min="0" class="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">Customer Name *</label>
+                        <input type="text" id="leadName" required class="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">Phone *</label>
+                        <input type="tel" id="leadPhone" required class="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-1">Location *</label>
+                    <input type="text" id="leadLocation" required class="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-1">Description *</label>
+                    <textarea id="leadDescription" required rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeAddLeadModal()" class="flex-1 px-6 py-3 rounded-lg border border-slate-600 text-slate-300 font-semibold hover:bg-slate-700 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+                        Add to Dashboard
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Scanner State
+        let scannerRunning = false;
+        let scannerInterval = null;
+        let foundLeads = [];
+        let scanCount = 0;
+
+        // Toggle Scanner
+        function toggleScanner() {
+            const btn = document.getElementById('toggleScanner');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            if (scannerRunning) {
+                // Stop scanner
+                scannerRunning = false;
+                clearInterval(scannerInterval);
+                btn.innerHTML = '<i class="fas fa-play"></i> Start Scanner';
+                btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                statusDot.classList.remove('bg-green-500', 'scanning-animation');
+                statusDot.classList.add('bg-red-500');
+                statusText.textContent = 'Scanner Off';
+            } else {
+                // Start scanner
+                scannerRunning = true;
+                const interval = parseInt(document.getElementById('scanInterval').value) * 60000;
+                scannerInterval = setInterval(runScan, interval);
+
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Scanner';
+                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                btn.classList.add('bg-red-600', 'hover:bg-red-700');
+                statusDot.classList.remove('bg-red-500');
+                statusDot.classList.add('bg-green-500', 'scanning-animation');
+                statusText.textContent = 'Scanner Active';
+
+                // Run initial scan
+                runScan();
+            }
+        }
+
+        // Run Scan
+        async function runScan() {
+            scanCount++;
+            const scanProgress = document.getElementById('scanProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const scanStatus = document.getElementById('scanStatus');
+
+            scanProgress.classList.remove('hidden');
+
+            // Get settings
+            const minPrice = parseInt(document.getElementById('minPrice').value) || 175;
+            const maxPrice = parseInt(document.getElementById('maxPrice').value) || 1000;
+            const searchArea = document.getElementById('searchArea').value;
+
+            const platforms = [];
+            if (document.getElementById('searchCraigslist').checked) platforms.push('Craigslist');
+            if (document.getElementById('searchMarketplace').checked) platforms.push('Facebook');
+            if (document.getElementById('searchNextdoor').checked) platforms.push('Nextdoor');
+
+            // Simulate scanning process
+            const steps = [
+                'Initializing scanner...',
+                `Searching ${searchArea === 'all' ? 'all areas' : searchArea}...`,
+                'Scanning Craigslist...',
+                'Scanning Facebook Marketplace...',
+                'Scanning Nextdoor...',
+                'Filtering by price range ($' + minPrice + ' - $' + maxPrice + ')...',
+                'Processing results...',
+                'Complete!'
+            ];
+
+            for (let i = 0; i < steps.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const progress = ((i + 1) / steps.length) * 100;
+                progressBar.style.width = progress + '%';
+                progressPercent.textContent = Math.round(progress) + '%';
+                scanStatus.textContent = steps[i];
+            }
+
+            // Generate sample leads (in real implementation, this would use actual web scraping)
+            generateSampleLeads(minPrice, maxPrice, searchArea, platforms);
+
+            // Update last scan time
+            const now = new Date();
+            document.getElementById('lastScan').textContent = now.toLocaleTimeString();
+
+            // Hide progress after completion
+            setTimeout(() => {
+                scanProgress.classList.add('hidden');
+                progressBar.style.width = '0%';
+            }, 1500);
+        }
+
+        // Generate Sample Leads (Simulating real leads)
+        function generateSampleLeads(minPrice, maxPrice, searchArea, platforms) {
+            const sampleLeads = [
+                {
+                    source: 'Craigslist Cincinnati',
+                    title: 'OLD COUCH AND RECLINER - FREE',
+                    description: 'Moving out - need gone today. Couch and recliner in good condition. Must pick up.',
+                    price: 0,
+                    location: 'Cincinnati, OH 45208',
+                    name: 'Sarah M.',
+                    phone: '(513) 555-0123',
+                    url: '#',
+                    posted: '2 hours ago'
+                },
+                {
+                    source: 'Facebook Marketplace',
+                    title: 'Full garage cleanout - $250',
+                    description: 'Getting rid of everything in garage. Tools, boxes, old furniture. Call for details.',
+                    price: 250,
+                    location: 'Dayton, OH 45402',
+                    name: 'Mike T.',
+                    phone: '(937) 555-0456',
+                    url: '#',
+                    posted: '4 hours ago'
+                },
+                {
+                    source: 'Craigslist Dayton',
+                    title: 'MATTRESS AND BOX SPRING - $175',
+                    description: 'Queen size mattress and box spring. Slightly used. Firm bed.',
+                    price: 175,
+                    location: 'Kettering, OH 45429',
+                    name: 'Jennifer L.',
+                    phone: '(937) 555-0789',
+                    url: '#',
+                    posted: '1 day ago'
+                },
+                {
+                    source: 'Nextdoor',
+                    title: 'Estate sale leftovers - make offer',
+                    description: 'Whole house cleanout - many items available. Furniture, appliances, boxes.',
+                    price: 450,
+                    location: 'Covington, KY 41011',
+                    name: 'Robert W.',
+                    phone: '(859) 555-0321',
+                    url: '#',
+                    posted: '3 hours ago'
+                },
+                {
+                    source: 'Facebook Marketplace',
+                    title: 'Construction debris removal - $600',
+                    description: 'Leftover materials from renovation. Drywall, lumber, tiles. Need hauled away.',
+                    price: 600,
+                    location: 'Mason, OH 45040',
+                    name: 'David K.',
+                    phone: '(513) 555-0654',
+                    url: '#',
+                    posted: '5 hours ago'
+                },
+                {
+                    source: 'Craigslist Cincinnati',
+                    title: 'Hot tub removal - $350',
+                    description: 'Old hot tub needs removed. Will need 2 people and truck. Serious only.',
+                    price: 350,
+                    location: 'Anderson, OH 45255',
+                    name: 'Lisa P.',
+                    phone: '(513) 555-0987',
+                    url: '#',
+                    posted: '6 hours ago'
+                }
+            ];
+
+            // Filter leads
+            const filteredLeads = sampleLeads.filter(lead => {
+                // Price filter
+                if (lead.price > 0 && (lead.price < minPrice || lead.price > maxPrice)) {
+                    return false;
+                }
+                // Free items (potential - could negotiate)
+                if (lead.price === 0 && minPrice > 0) {
+                    return false;
+                }
+                return true;
+            });
+
+            // Add new leads to list (avoiding duplicates)
+            filteredLeads.forEach(lead => {
+                const exists = foundLeads.some(l => l.title === lead.title && l.source === lead.source);
+                if (!exists) {
+                    lead.id = Date.now() + Math.random();
+                    lead.status = lead.price >= minPrice && lead.price <= 300 ? 'target' :
+                                 lead.price > 300 ? 'high' : 'low';
+                    foundLeads.unshift(lead);
+                }
+            });
+
+            renderResults();
+            updateStats();
+        }
+
+        // Render Results
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+
+            if (foundLeads.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-500">
+                        <i class="fas fa-radar text-6xl mb-4 opacity-50"></i>
+                        <p class="text-lg">No leads found in this scan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = foundLeads.map(lead => {
+                let statusColor = lead.status === 'target' ? 'bg-green-500' :
+                                 lead.status === 'high' ? 'bg-amber-500' : 'bg-slate-500';
+                let statusText = lead.status === 'target' ? 'TARGET' :
+                                lead.status === 'high' ? 'HIGH VALUE' : 'FREE/LOW';
+
+                return `
+                    <div class="scanned-item bg-slate-700/50 p-4 rounded-lg border border-slate-600 hover:border-green-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold px-2 py-1 rounded ${statusColor} text-white">${statusText}</span>
+                                <span class="text-xs text-slate-400"><i class="fas fa-clock mr-1"></i>${lead.posted}</span>
+                            </div>
+                            <span class="text-sm font-bold ${lead.price > 0 ? 'text-green-400' : 'text-blue-400'}">
+                                ${lead.price > 0 ? '$' + lead.price : 'FREE'}
+                            </span>
+                        </div>
+
+                        <h3 class="font-bold text-lg mb-1">${lead.title}</h3>
+                        <p class="text-sm text-slate-400 mb-3">${lead.description}</p>
+
+                        <div class="flex flex-wrap gap-2 mb-3 text-sm text-slate-400">
+                            <span><i class="fas fa-tag mr-1"></i>${lead.source}</span>
+                            <span><i class="fas fa-map-marker mr-1"></i>${lead.location}</span>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="addToDashboard(${lead.id})" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-plus mr-1"></i> Add to Leads
+                            </button>
+                            <a href="tel:${lead.phone}" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-phone mr-1"></i> Call
+                            </a>
+                            <span class="text-xs text-slate-500 self-center">${lead.name} - ${lead.phone}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('totalFound').textContent = foundLeads.length;
+            document.getElementById('targetCount').textContent = foundLeads.filter(l => l.status === 'target').length;
+            document.getElementById('highValueCount').textContent = foundLeads.filter(l => l.status === 'high').length;
+        }
+
+        // Clear Results
+        function clearResults() {
+            foundLeads = [];
+            renderResults();
+            updateStats();
+        }
+
+        // Export to Dashboard
+        function exportLeads() {
+            if (foundLeads.length === 0) {
+                alert('No leads to export!');
+                return;
+            }
+
+            // Get existing leads from dashboard
+            const existingLeads = JSON.parse(localStorage.getItem('tristateLeads') || '[]');
+
+            // Convert scanned leads to dashboard format
+            const newLeads = foundLeads.map(lead => ({
+                id: lead.id,
+                source: lead.source,
+                name: lead.name,
+                phone: lead.phone,
+                location: lead.location,
+                items: lead.title + ' - ' + lead.description,
+                price: lead.price || 175,
+                status: lead.status,
+                notes: lead.posted,
+                createdAt: new Date().toISOString(),
+                contacted: false
+            }));
+
+            // Merge and save
+            const allLeads = [...newLeads, ...existingLeads];
+            localStorage.setItem('tristateLeads', JSON.stringify(allLeads));
+
+            alert(`Successfully added ${newLeads.length} leads to your dashboard!`);
+        }
+
+        // Add Single Lead to Dashboard
+        function addToDashboard(leadId) {
+            const lead = foundLeads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            const existingLeads = JSON.parse(localStorage.getItem('tristateLeads') || '[]');
+
+            const newLead = {
+                id: lead.id,
+                source: lead.source,
+                name: lead.name,
+                phone: lead.phone,
+                location: lead.location,
+                items: lead.title + ' - ' + lead.description,
+                price: lead.price || 175,
+                status: lead.status,
+                notes: lead.posted,
+                createdAt: new Date().toISOString(),
+                contacted: false
+            };
+
+            existingLeads.unshift(newLead);
+            localStorage.setItem('tristateLeads', JSON.stringify(existingLeads));
+
+            alert('Lead added to dashboard!');
+
+            // Remove from scanned list
+            foundLeads = foundLeads.filter(l => l.id !== leadId);
+            renderResults();
+            updateStats();
+        }
+
+        // Modal Functions
+        function closeAddLeadModal() {
+            document.getElementById('addLeadModal').classList.add('hidden');
+        }
+
+        // Show Section (for future expansion)
+        function showSection(section) {
+            // Could add tab switching logic here
+        }
+    </script>
+</body>
+</html>
